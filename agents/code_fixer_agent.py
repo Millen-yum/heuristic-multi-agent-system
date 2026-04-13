@@ -1,15 +1,10 @@
-<<<<<<< HEAD
 import json
 import re
 from .common import cl, PydanticOutputParser, llm_code, llm_code_claude, GENERATED_DIR, get_generated_path
-=======
-from .common import cl, PydanticOutputParser, llm_code, llm_code_claude
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 from schemas import AgentState, Code, CodeFix
 from prompts.prompts import CODE_FIXER_PROMPT
 
 
-<<<<<<< HEAD
 def _extract_json_object(text: str) -> str | None:
     """Try to recover a JSON object from the model response."""
     # Remove markdown fences and code blocks
@@ -49,8 +44,6 @@ def _contains_chainlit_artifacts(code_text: str) -> bool:
     return any(re.search(pattern, code_text) for pattern in patterns)
 
 
-=======
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 # Code is split into two functions to allow for easier testing
 async def fix_code_logic(code: Code, docker_output: str) -> Code:
     """
@@ -88,7 +81,6 @@ async def fix_code_logic(code: Code, docker_output: str) -> Code:
     try:
         response = output_parser.parse(full_response)
     except Exception as e:
-<<<<<<< HEAD
         # If the response contains extra text or markdown, try to recover the JSON payload.
         extracted_json = _extract_json_object(full_response)
         if extracted_json is not None:
@@ -103,9 +95,6 @@ async def fix_code_logic(code: Code, docker_output: str) -> Code:
             raise ValueError(
                 f"Error parsing code response: {e}. Raw response: {full_response[:1000]}"
             )
-=======
-        raise ValueError(f"Error parsing code response: {e}")
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 
     return response
 
@@ -139,7 +128,6 @@ async def code_fixer_agent(state: AgentState):
         resources=code.resources,  # Keep resources the same if they were not modified
     )
 
-<<<<<<< HEAD
     if _contains_chainlit_artifacts(updated_code.python_code):
         await cl.Message(
             content=(
@@ -149,33 +137,23 @@ async def code_fixer_agent(state: AgentState):
         ).send()
         raise RuntimeError("Fixed code contains forbidden Chainlit artifacts.")
 
-=======
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
     state["code"] = updated_code
 
     # Save the generated code to a Python file
     def clean_text(text):
         return text.encode("utf-8", "replace").decode("utf-8")
 
-<<<<<<< HEAD
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     with open(get_generated_path("generated.py"), "w", encoding="utf-8") as f:
-=======
-    with open("generated/generated.py", "w", encoding="utf-8") as f:
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
         f.write(clean_text(updated_code.python_code))
 
     # If requirements have changed, save to requirements.txt
     if response.requirements_changed:
-<<<<<<< HEAD
         with open(get_generated_path("requirements.txt"), "w", encoding="utf-8") as f:
-=======
-        with open("generated/requirements.txt", "w", encoding="utf-8") as f:
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
             f.write(response.requirements)
-            
+
     state["fixIterations"] = state.get("fixIterations", 0) + 1
-            
+
     current_step.output = response.fixed_python_code
 
     return state

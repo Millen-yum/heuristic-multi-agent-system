@@ -1,10 +1,6 @@
 from prompts.prompts import CODE_PROMPT_NO_DATA, CODE_PROMPT
 from schemas import AgentState, Code
-<<<<<<< HEAD
 from .common import cl, llm_code, llm_code_claude, GENERATED_DIR, get_generated_path
-=======
-from .common import cl, llm_code, llm_code_claude
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 
 #Splitted for two parts for easier testing
 async def generate_code_logic(state: AgentState) -> Code:
@@ -79,18 +75,11 @@ async def code_generator_agent(state: AgentState) -> AgentState:
     state["code"] = response
 
     # Save the generated code and requirements to files
-<<<<<<< HEAD
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     with open(get_generated_path("generated.py"), "w", encoding="utf-8") as f:
         f.write(response.python_code)
 
     with open(get_generated_path("requirements.txt"), "w", encoding="utf-8") as f:
-=======
-    with open("generated/generated.py", "w", encoding="utf-8") as f:
-        f.write(response.python_code)
-
-    with open("generated/requirements.txt", "w", encoding="utf-8") as f:
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
         f.write(response.requirements)
 
     return state

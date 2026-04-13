@@ -1,14 +1,9 @@
 from prompts.prompts import HEURISTIC_PROMPT
 from schemas import AgentState, Code, ProblemClass
-<<<<<<< HEAD
 from .common import cl, llm_code, llm_code_claude, GENERATED_DIR, get_generated_path
 from prompts.instuctions import *
-=======
-from .common import cl, llm_code, llm_code_claude
-from prompts.instuctions import *
 
 
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 async def apply_heuristic_logic(state: AgentState) -> Code:
     inputs = state["purpose"]
     problem_type = inputs.problem_class
@@ -84,18 +79,11 @@ async def heuristic_agent(state: AgentState) -> AgentState:
     # Päivitä tila ja tallenna tiedostot
     state["code"] = response
 
-<<<<<<< HEAD
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     with open(get_generated_path("generated.py"), "w", encoding="utf-8") as f:
         f.write(response.python_code)
 
     with open(get_generated_path("requirements.txt"), "w", encoding="utf-8") as f:
-=======
-    with open("generated/generated.py", "w", encoding="utf-8") as f:
-        f.write(response.python_code)
-
-    with open("generated/requirements.txt", "w", encoding="utf-8") as f:
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
         f.write(response.requirements)
 
     return state
