@@ -2,6 +2,7 @@ from prompts.prompts import (
     DOCKER_FILES_PROMPT,
 )
 from schemas import AgentState, DockerFiles
+<<<<<<< HEAD
 from .common import cl, PydanticOutputParser, llm, GENERATED_DIR, get_generated_path
 
 
@@ -18,6 +19,9 @@ def sanitize_compose_yaml(compose_text: str) -> str:
     while sanitized_lines and sanitized_lines[0].strip() == "":
         sanitized_lines.pop(0)
     return "\n".join(sanitized_lines).rstrip() + "\n"
+=======
+from .common import cl, PydanticOutputParser, llm
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 
 
 # Docker environment setup agent
@@ -70,6 +74,7 @@ async def docker_environment_files_agent(state: AgentState):
         await cl.Message(content=f"Error parsing Docker files response: {e}").send()
         return state
 
+<<<<<<< HEAD
     state["dockerFiles"] = response
 
     # Save the Dockerfile and Compose file
@@ -80,5 +85,15 @@ async def docker_environment_files_agent(state: AgentState):
     compose_content = sanitize_compose_yaml(response.compose_file)
     with open(get_generated_path("compose.yaml"), "w", encoding="utf-8") as f:
         f.write(compose_content)
+=======
+    state["docker_files"] = response
+
+    # Save the Dockerfile and Compose file
+    with open("generated/Dockerfile", "w", encoding="utf-8") as f:
+        f.write(response.dockerfile)
+
+    with open("generated/compose.yaml", "w", encoding="utf-8") as f:
+        f.write(response.compose_file)
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 
     return state

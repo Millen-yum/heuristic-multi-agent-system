@@ -65,6 +65,7 @@ async def problem_analyzer_agent(state: AgentState):
         content="Sounds good, proceed?!",
         actions=[
             cl.Action(name="continue", payload={"value": "continue"}, label="✅ Continue"),
+<<<<<<< HEAD
             cl.Action(name="new", payload={"value": "new"}, label="❌ Create new plan"),
             cl.Action(name="cancel", payload={"value": "cancel"}, label="❌ Cancel and start over"),
         ],
@@ -75,6 +76,13 @@ async def problem_analyzer_agent(state: AgentState):
         state["proceed"] = "cancel"
         return state
 
+=======
+            cl.Action(name="new", payload={"value": "new"},  label="❌ Create new plan"),
+            cl.Action(name="cancel", payload={"value": "cancel"},  label="❌ Cancel and start over"),
+        ],
+    ).send()
+
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
     selected_value = res["payload"]["value"]
 
     if selected_value == "continue":

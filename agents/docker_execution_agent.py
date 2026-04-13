@@ -16,6 +16,7 @@ async def start_docker_container_agent(state: AgentState):
     error_output = ""  # Tallennetaan virheiden jäljitys
 
     try:
+<<<<<<< HEAD
         # Ensure Docker is installed and the daemon is running before build
         subprocess.run(
             ["docker", "version"],
@@ -33,6 +34,11 @@ async def start_docker_container_agent(state: AgentState):
         # Rakennetaan Docker image
         print("Building Docker image...")
         build_command = ["docker", "compose", "build"]
+=======
+        # Rakennetaan Docker image
+        print("Building Docker image...")
+        build_command = ["docker-compose", "build"]
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
         with subprocess.Popen(
             build_command,
             stdout=subprocess.PIPE,
@@ -49,8 +55,12 @@ async def start_docker_container_agent(state: AgentState):
         # Ajetaan Docker container
         print("Running Docker container...")
         up_command = [
+<<<<<<< HEAD
             "docker",
             "compose",
+=======
+            "docker-compose",
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
             "up",
             "--abort-on-container-exit",
             "--no-log-prefix",
@@ -122,7 +132,11 @@ async def start_docker_container_agent(state: AgentState):
 
     finally:
         # Siivotaan Docker-resurssit
+<<<<<<< HEAD
         subprocess.run(["docker", "compose", "down"])
+=======
+        subprocess.run(["docker-compose", "down"])
+>>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
         subprocess.run(["docker", "image", "prune", "-f"])
         os.chdir("..")
 
