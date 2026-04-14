@@ -1,15 +1,11 @@
 
-# GPT Lab Seinäjoki
-
-<<<<<<< HEAD
-** @'
-# GPT Lab Seinäjoki Multi-Agent Optimization Demo
+# Heuristic Multi-Agent Optimization Demo
 
 This repository is a Chainlit-based demonstration of a multi-agent system for combinatorial optimization tasks.
 
 The project is based on the following research direction:
 
-> This thesis examines how effective optimization algorithms for complex combinatorial optimization problems can be developed using a multi-agent system based on large language models. The work presents a fully automated system in which specialized agents collaborate to interpret user-defined problems, generate optimization code, and iteratively improve solutions through feedback. The system was evaluated on established benchmarks, such as the vehicle routing problem and the cutting stock problem, and was able to produce solutions that achieved optimal or near-optimal results. The findings show that composing the system into separate agents with clear roles is essential for handling complexity and ensuring that the end-to-end code generation process can correct itself. The performance of the system depends strongly on giving the agents precise, problem-specific instructions and enabling smooth cooperation between agents focused on analysis, code generation, execution, and error correction. This approach offers a good alternative to the time-consuming manual design of algorithms and allows domain experts to focus more on defining the problem, rather than writing detailed implementation. This research provides a validated example of how solving optimization tasks can be automated by distributing work between language model-based agents. The results give clear evidence that this approach is effective for tackling challenging computational problems. The contribution is relevant for both industry and academia, as it can help speed up development in operations research and support new applications of artificial intelligence in practice.
+> This thesis examines how effective optimization algorithms for complex combinatorial optimization problems can be developed using a multi-agent system based on large language models. The work presents a fully automated system in which specialized agents collaborate to interpret user-defined problems, generate optimization code, and iteratively improve solutions through feedback. The system was evaluated on established benchmarks, such as the vehicle routing problem and the cutting stock problem, and was able to produce solutions that achieved optimal or near-optimal results. The findings show that composing the system into separate agents with clear roles is essential for handling complexity and ensuring that the end-to-end code generation process can correct itself. The performance of the system depends strongly on giving the agents precise, problem-specific instructions and enabling smooth cooperation between agents focused on analysis, code generation, execution, and error correction. This approach offers a good alternative to the time-consuming manual design of algorithms and allows domain experts to focus more on defining the problem, rather than writing a detailed implementation. This research provides a validated example of how solving optimization tasks can be automated by distributing work between language model-based agents. The results give clear evidence that this approach is effective for tackling challenging computational problems. The contribution is relevant for both industry and academia, as it can help speed up development in operations research and support new applications of artificial intelligence in practice.
 
 ## Overview
 
@@ -279,16 +275,6 @@ Possible causes:
 - Docker execution errors
 - dependency drift after upgrading Chainlit, LangChain, or Pydantic
 
-## Experimental / Fragile Areas
-
-This repository is demoable, but some areas should be treated as experimental:
-
-- dependency compatibility is sensitive to Chainlit, LangChain, and Pydantic version changes
-- Docker execution relies on local CLI behavior and generated files
-- the test suite is not fully robust against recent dependency upgrades
-- some UI strings and source files still show encoding issues
-- the workflow is designed for demonstration and research, not production reliability
-
 ## Repository Structure
 
 ```text
@@ -321,7 +307,6 @@ What should be understood as still evolving:
 - Docker execution portability across machines
 '@ | Set-Content README.md**
 =======
-**This project under the GPT Lab Seinäjoki program supports the regional strategy of fostering an innovative ecosystem and advancing smart, skilled development. Its goal is to introduce new AI knowledge and technology to the region, enhance research and innovation activities, and improve business productivity.**
 >>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
 
 <img src="images/gptlab_sjk_logo.png" alt="GPT Lab Seinäjoki Logo" style="height: 150px; width: auto;">
