@@ -1,324 +1,232 @@
+# Heuristic Multi-Agent System
 
-<<<<<<< HEAD
-** @'
-# GPT Lab Seinäjoki Multi-Agent Optimization Demo
-
-This repository is a Chainlit-based demonstration of a multi-agent system for combinatorial optimization tasks.
-
-The project is based on the following research direction:
-
-> This demo examines how effective optimization algorithms for complex combinatorial optimization problems can be developed using a multi-agent system based on large language models. The work presents a fully automated system in which specialized agents collaborate to interpret user-defined problems, generate optimization code, and iteratively improve solutions through feedback. The system was evaluated on established benchmarks, such as the vehicle routing problem and the cutting stock problem, and was able to produce solutions that achieved optimal or near-optimal results. The findings show that composing the system into separate agents with clear roles is essential for handling complexity and ensuring that the end-to-end code generation process can correct itself. The performance of the system depends strongly on giving the agents precise, problem-specific instructions and enabling smooth cooperation between agents focused on analysis, code generation, execution, and error correction. This approach offers a good alternative to the time-consuming manual design of algorithms and allows domain experts to focus more on defining the problem, rather than writing detailed implementation. This research provides a validated example of how solving optimization tasks can be automated by distributing work between language model-based agents. The results give clear evidence that this approach is effective for tackling challenging computational problems. The contribution is relevant for both industry and academia, as it can help speed up development in operations research and support new applications of artificial intelligence in practice.
+A Chainlit-based demo showing how a multi-agent system uses large language models to solve combinatorial optimization problems.
 
 ## Overview
 
-The application lets a user describe an optimization problem and optionally upload supporting files. A set of specialized agents then:
+This project is built from a research direction in which specialized agents collaborate to solve optimization tasks. The system aims to automate the steps of problem understanding, solution generation, code execution, troubleshooting, and iterative improvement.
 
-- interpret the problem and classify it
-- decide whether to use a heuristic path or direct code generation
-- generate Python code and runtime requirements
-- generate Docker files
-- execute the generated solution in Docker
-- analyze the output
-- fix errors when execution fails
-- optionally start a new optimization round
-- produce a final report selecting the best result from all iterations
+The main idea is:
 
-This is a demo-oriented research prototype rather than a production-hardened platform. It is best understood as an interactive proof of concept for automated optimization workflows driven by LLM agents.
+- break the optimization workflow into focused agent roles
+- use LLMs to interpret input data and user goals
+- generate and run code automatically inside Docker
+- repair the code when execution fails
+- select and report the best result
 
-## Architecture Summary
+This repository is a prototype for research and demonstration, not a production product.
 
-The application is built around a Chainlit UI and a LangGraph workflow defined in [`main.py`](./main.py).
+## Key Features
 
-### Runtime Components
+- Interactive web UI powered by Chainlit
+- Directed multi-agent workflow orchestrated by LangGraph
+- Automatic code generation and repair
+- Docker-based execution for generated solutions
+- Support for uploading Excel, Python, and VRP input files
+- Iterative optimization loops with final result selection
+
+## Architecture
+
+The workflow is defined in `main.py`.
+
+### Core components
 
 - `Chainlit`
-  - provides the web UI, chat session lifecycle, file uploads, and step-by-step visibility into the agents
+  - runs the chat UI, handles user messages, and manages file uploads
 - `LangGraph`
-  - orchestrates the multi-agent workflow as a directed graph
-- `OpenAI / Anthropic chat models`
-  - provide reasoning, structured output generation, code generation, and repair
+  - defines the step-by-step agent workflow as a graph
+- `OpenAI / Anthropic` models
+  - provide reasoning, code generation, and repair capabilities
 - `Docker`
-  - runs generated code in an isolated execution environment
+  - executes generated code in an isolated container environment
 
 ### Agents
 
-The workflow currently registers the following agents from [`agents/__init__.py`](./agents/__init__.py):
+The current system uses the following agents:
 
 - `problem_analyzer_agent`
-  - analyzes the prompt and uploaded files, classifies the problem, and chooses a solution path
+  - reads the prompt and uploaded input, classifies the task, and chooses the solution path
 - `code_generator_agent`
-  - generates Python code directly for optimization problems
+  - writes Python code for direct optimization when the problem is suitable
 - `heuristic_agent`
-  - generates heuristic-based solutions for supported problem classes
+  - creates heuristic solutions for supported problem classes
 - `docker_environment_files_agent`
-  - generates a `Dockerfile` and `compose.yaml` for the generated solution
+  - generates Docker deployment assets such as `Dockerfile` and `compose.yaml`
 - `start_docker_container_agent`
-  - builds and runs the generated solution with Docker
+  - builds and launches the generated Docker environment
 - `code_output_analyzer_agent`
-  - interprets the execution output and asks whether another optimization round should start
+  - analyzes execution output and decides whether to continue or rerun
 - `code_fixer_agent`
-  - attempts to repair code after execution failures
+  - repairs code when execution fails
 - `new_loop_agent`
-  - performs a new optimization round using previous code and results
+  - starts a new optimization cycle using previous results
 - `final_report_agent`
-  - chooses the best result across optimization rounds and presents the final answer
+  - selects the best final result and summarizes it for the user
 
-### Startup Flow
+### Workflow order
 
-The actual startup flow is:
+The app follows this ordered flow:
 
-1. Chainlit loads `main.py`.
-2. `main.py` creates the `generated/` directory if it does not exist.
-3. `main.py` imports the agent registry from `agents/__init__.py`.
-4. `main.py` builds and compiles a `StateGraph` workflow.
-5. On chat start, the app sends a short Finnish greeting message.
-6. On each user message:
-   - uploaded files are parsed and copied into `generated/`
-   - file contents are converted into a `promptFiles` string
-   - an `AgentState` object is created
-   - the LangGraph workflow is invoked
+1. User submits a text prompt and optionally uploads input files
+2. `problem_analyzer_agent` selects the best path
+3. Either `heuristic_agent` or `code_generator_agent` produces a solution
+4. `docker_environment_files_agent` creates Docker files
+5. `start_docker_container_agent` runs the generated solution
+6. If execution fails, `code_fixer_agent` attempts to repair
+7. `code_output_analyzer_agent` reviews results
+8. Optional `new_loop_agent` runs another iteration
+9. `final_report_agent` returns the best output
 
-### Workflow Shape
+## Supported Inputs
 
-The current graph in `main.py` is:
-
-1. `problem_analyzer`
-2. `heuristic` or `code_generator`
-3. `docker_files`
-4. `start_docker`
-5. if execution fails: `code_fixer`
-6. if execution succeeds: `output_analyzer`
-7. optional additional optimization via `new_loop`
-8. `final_report`
-
-## Supported Input Types
-
-The current Chainlit app explicitly handles the following uploaded file types:
+This project currently supports the following upload types:
 
 - `.xlsx`
 - `.xls`
 - `.py`
 - `.vrp`
 
-Behavior in the current code:
+Behavior:
 
-- Excel files are read into pandas data frames and serialized into JSON-like prompt content.
-- Python files are read as source text and included in the prompt.
-- VRP files are read line by line and included in the prompt.
-- Uploaded files are also copied into the local `generated/` directory.
+- Excel files are parsed into structured prompt data
+- Python files are included as source context
+- VRP files are included as text input
+- Uploaded files are copied into `generated/`
 
-Other file types are currently rejected in the app with an "unknown file type" message.
-
-## Windows Setup
+## Installation
 
 ### Prerequisites
 
 - Windows with PowerShell
-- Python installed
+- Python 3.x
 - Docker Desktop installed and running
 - An OpenAI API key
 - Optional: an Anthropic API key
 
-### Recommended Setup Steps
+### Install steps
 
-1. Clone the repository.
-2. Open the project folder in VS Code or PowerShell.
-3. Create a virtual environment:
+Open PowerShell in the project folder and run:
 
 ```powershell
 python -m venv .venv
-```
-
-4. Activate the virtual environment:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
-```
-
-5. Upgrade pip:
-
-```powershell
 python -m pip install --upgrade pip
-```
-
-6. Install project dependencies:
-
-```powershell
 pip install -r requirements.txt
 ```
 
-7. Make sure Docker Desktop is running before you start the app.
-
 ## Environment Variables
 
-The code currently reads the following variables from `.env`:
+Create a `.env` file with the values required by the app.
 
-### Required
-
-- `OPENAI_API_KEY`
-
-### Optional
-
-- `CLAUDE_API_KEY`
-
-Example `.env`:
+Required:
 
 ```env
-OPENAI_API_KEY=sk-proj-...
-CLAUDE_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+```
+
+Optional:
+
+```env
+CLAUDE_API_KEY=sk-...
 ```
 
 Notes:
 
-- The OpenAI key is required for the app to start properly.
-- The Anthropic key is optional and only used if present.
+- `OPENAI_API_KEY` is required for the app to work.
+- `CLAUDE_API_KEY` is optional and only used if available.
 
-## Running the Chainlit App
+## Windows Setup
 
-After activating the virtual environment and setting environment variables:
+1. Install Python and Docker Desktop.
+2. Open PowerShell in the project directory.
+3. Create and activate the virtual environment.
+4. Install dependencies from `requirements.txt`.
+5. Confirm Docker Desktop is running before starting the app.
+
+## Running the App
+
+Start the Chainlit app with:
 
 ```powershell
 chainlit run main.py -w
 ```
 
-Then open:
+Then open the app in your browser at:
 
 ```text
 http://localhost:8000
 ```
 
-## Demo Workflow
+If port `8000` is in use, run on a different port:
 
-A practical demo flow for GPT Lab Seinäjoki is:
+```powershell
+chainlit run main.py --port 8001
+```
+
+## Demo Instructions
+
+A clear demo order is:
 
 1. Start the Chainlit app.
-2. Open the web UI in the browser.
-3. Upload one of the supported input types:
-   - an Excel workbook describing an optimization task
-   - a Python file
-   - a VRP benchmark instance
-4. Describe the optimization goal in plain language.
-5. Let the `problem_analyzer_agent` classify the problem and propose a path.
-6. Confirm whether to continue with the proposed plan.
-7. Let the workflow generate code or a heuristic solution.
-8. Let the app generate Docker files and execute the solution.
-9. Review the execution output and result analysis.
-10. Choose whether to start a new optimization round.
-11. Let the system produce a final report selecting the best run.
+2. Open the browser UI.
+3. Upload one supported input file (`.xlsx`, `.xls`, `.py`, `.vrp`).
+4. Enter a clear optimization goal in the chat prompt.
+5. Let `problem_analyzer_agent` classify the task and choose a path.
+6. Review the chosen path and continue if it looks correct.
+7. Watch the system generate Docker files and run the solution.
+8. Observe the execution output and analysis.
+9. If needed, allow the app to repair code or run a new optimization round.
+10. Review the final report and selected best result.
 
-This demo works best when the uploaded data and prompt are specific. The system depends heavily on clear instructions and structured problem context.
+## Common Troubleshooting / Known Issues
 
-## Common Troubleshooting
+### Invalid or missing API key
 
-### `OPENAI_API_KEY` missing or invalid
+- App fails to start without `OPENAI_API_KEY`.
+- Check that `.env` exists and the key is correct.
 
-Symptoms:
+### Upload problems
 
-- app crashes during startup
-- model client initialization fails
+- Only `.xlsx`, `.xls`, `.py`, and `.vrp` files are accepted.
+- If upload fails, refresh the UI and retry.
+- Verify `.chainlit/config.toml` MIME settings if the browser rejects the file.
 
-Check:
+### Docker issues
 
-- `.env` exists
-- `OPENAI_API_KEY` contains only the key value
-- there is no leftover placeholder text
+- Ensure Docker Desktop is running.
+- Confirm the Docker CLI works in PowerShell.
+- The current code uses `docker-compose`, so Docker Desktop must support that command.
 
-### Chainlit UI text or buttons render strangely
+### Port conflicts
 
-Symptoms:
+- If port `8000` is busy, start the app on another port.
 
-- labels appear missing
-- README button shows incorrectly
+### Experimental limitations
 
-Likely cause:
-
-- local Chainlit translation files do not match the installed Chainlit version
-
-Fix:
-
-- remove or back up `.chainlit/translations` so Chainlit falls back to built-in translations
-
-### `docker-compose` command fails
-
-Symptoms:
-
-- Docker build or execution fails immediately
-
-Check:
-
-- Docker Desktop is running
-- Docker CLI is available from PowerShell
-- your environment still supports the `docker-compose` command used by this codebase
-
-Note:
-
-- the current implementation uses `docker-compose`, not `docker compose`
-
-### Tests fail before running
-
-Symptoms:
-
-- `pytest` fails on startup or with async-related options
-
-Likely cause:
-
-- the test configuration and dependency set are currently fragile
-
-Note:
-
-- this repository includes tests, but they should be treated as experimental and may require maintenance after dependency upgrades
-
-### Generated workflow stalls or behaves inconsistently
-
-Possible causes:
-
-- invalid or underspecified input data
-- model output that does not match the expected schema
-- Docker execution errors
-- dependency drift after upgrading Chainlit, LangChain, or Pydantic
-
-## Experimental / Fragile Areas
-
-This repository is demoable, but some areas should be treated as experimental:
-
-- dependency compatibility is sensitive to Chainlit, LangChain, and Pydantic version changes
-- Docker execution relies on local CLI behavior and generated files
-- the test suite is not fully robust against recent dependency upgrades
-- some UI strings and source files still show encoding issues
-- the workflow is designed for demonstration and research, not production reliability
+- The workflow is a prototype and may not handle every input reliably.
+- Model output can be unpredictable and may require manual retry.
+- Generated code repair is not guaranteed for all failures.
 
 ## Repository Structure
 
 ```text
 .
 ├── agents/                 # Agent implementations
-├── prompts/                # Prompt templates and problem-specific instructions
-├── tests/                  # Agent-focused tests
+├── generated/              # Generated code and Docker files
+├── prompts/                # Prompt templates and instructions
+├── tests/                  # Agent tests
 ├── .chainlit/              # Chainlit configuration
-├── main.py                 # Chainlit entrypoint and LangGraph workflow
-├── schemas.py              # Shared Pydantic models and agent state schema
+├── main.py                 # Chainlit app entrypoint and workflow definition
+├── schemas.py              # Shared Pydantic models and state schemas
 ├── requirements.txt        # Python dependencies
-└── chainlit.md             # Readme/help panel shown from the Chainlit UI
+└── chainlit.md             # Chainlit help panel content
 ```
 
-## Honest Status
+## Recommended start order
 
-What is present today:
-
-- a real Chainlit app
-- a real LangGraph-controlled multi-agent workflow
-- support for multiple uploaded input types
-- code generation, Docker execution, repair, and iterative improvement loops
-
-What should be understood as still evolving:
-
-- UI polish
-- translation customization
-- dependency stability
-- test reliability
-- Docker execution portability across machines
-'@ | Set-Content README.md**
-=======
->>>>>>> e8c207795ffbe94871b8456444269f4c6fcb2acc
-
-<img src="images/gptlab_sjk_logo.png" alt="GPT Lab Seinäjoki Logo" style="height: 150px; width: auto;">
+1. Read the Overview and Architecture sections to understand the workflow.
+2. Install dependencies and configure `.env`.
+3. Start Docker Desktop.
+4. Run `chainlit run main.py -w`.
+5. Upload input and provide a clear optimization prompt.
+6. Follow the app’s generated workflow through solution generation, execution, and reporting.
